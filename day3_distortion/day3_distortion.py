@@ -3,26 +3,20 @@ import numpy as np
 import os
 import glob
 
-
 # ==========================================
-# ПАПКА С ФОТОГРАФИЯМИ
+# FOLDER WITH PHOTOS
 # ==========================================
-
-input_folder = r"Y:\1\week1_camera_models\day3_distortion\images"
-
-# Папка, куда будут сохраняться результаты
+input_folder = r"Y:\1\week1_camera_models\day3_distortion**\i**mages"
+# Folder where the results will be saved
 output_folder = os.path.join(
     r"Y:\1\week1_camera_models\day3_distortion",
     "results"
 )
-
 os.makedirs(output_folder, exist_ok=True)
 
-
 # ==========================================
-# НАХОДИМ ВСЕ ФОТОГРАФИИ
+# FIND ALL PHOTOS
 # ==========================================
-
 extensions = [
     "*.jpg",
     "*.jpeg",
@@ -31,84 +25,63 @@ extensions = [
     "*.JPEG",
     "*.PNG"
 ]
-
 image_paths = []
-
 for extension in extensions:
     image_paths.extend(
         glob.glob(os.path.join(input_folder, extension))
     )
 
-
 if len(image_paths) == 0:
-    print("❌ Фотографии не найдены!")
-    print(f"Проверь папку:")
+    print("❌ No photos found!")
+    print(f"Check the folder:")
     print(input_folder)
     exit()
 
-
-print(f"Найдено фотографий: {len(image_paths)}")
+print(f"Photos found: {len(image_paths)}")
 print()
 
-
 # ==========================================
-# ОБРАБАТЫВАЕМ КАЖДОЕ ФОТО
+# PROCESS EACH PHOTO
 # ==========================================
-
 for image_path in image_paths:
-
     # --------------------------------------
-    # Загружаем изображение
+    # Load the image
     # --------------------------------------
-
     img = cv2.imread(image_path)
-
     if img is None:
-        print(f"❌ Не удалось открыть: {image_path}")
+        print(f"❌ Failed to open: {image_path}")
         continue
-
     h, w = img.shape[:2]
-
     filename = os.path.basename(image_path)
     name = os.path.splitext(filename)[0]
-
-    print(f"Обрабатывается: {filename}")
-    print(f"Размер: {w} x {h}")
-
+    print(f"Processing: {filename}")
+    print(f"Size: {w} x {h}")
 
     # ======================================
-    # СОЗДАЁМ МАТРИЦУ КАМЕРЫ
+    # CREATE CAMERA MATRIX
     # ======================================
-
     fx = 800.0
     fy = 800.0
-
     cx = w / 2
     cy = h / 2
-
     K = np.array([
         [fx, 0, cx],
         [0, fy, cy],
         [0,  0,  1]
     ], dtype=np.float32)
 
-
     # ======================================
-    # КОЭФФИЦИЕНТЫ ДИСТОРСИИ
+    # DISTORTION COEFFICIENTS
     # ======================================
-
     # k1, k2, p1, p2, k3
-
     dist_coeffs = np.array(
         [-0.3, 0.1, 0.0, 0.0, 0.0],
         dtype=np.float32
     )
 
-
     # ======================================
-    # СОЗДАЁМ ИСКУССТВЕННУЮ ДИСТОРСИЮ
+    # CREATE ARTIFICIAL DISTORTION
     # ======================================
-
     map1, map2 = cv2.initUndistortRectifyMap(
         K,
         dist_coeffs,
@@ -117,7 +90,6 @@ for image_path in image_paths:
         (w, h),
         cv2.CV_32FC1
     )
-
     distorted = cv2.remap(
         img,
         map1,
@@ -125,29 +97,23 @@ for image_path in image_paths:
         interpolation=cv2.INTER_LINEAR
     )
 
-
     # ======================================
-    # ИСПРАВЛЯЕМ ДИСТОРСИЮ
+    # CORRECT THE DISTORTION
     # ======================================
-
     undistorted = cv2.undistort(
         distorted,
         K,
         dist_coeffs
     )
 
-
     # ======================================
-    # СОЗДАЁМ ИЗОБРАЖЕНИЕ ДЛЯ СРАВНЕНИЯ
+    # CREATE IMAGE FOR COMPARISON
     # ======================================
-
     original_labeled = img.copy()
     distorted_labeled = distorted.copy()
     undistorted_labeled = undistorted.copy()
 
-
-    # Подписи
-
+    # Labels
     cv2.putText(
         original_labeled,
         "Original",
@@ -157,7 +123,6 @@ for image_path in image_paths:
         (0, 255, 0),
         2
     )
-
     cv2.putText(
         distorted_labeled,
         "Distorted",
@@ -167,7 +132,6 @@ for image_path in image_paths:
         (0, 255, 0),
         2
     )
-
     cv2.putText(
         undistorted_labeled,
         "Undistorted",
@@ -178,20 +142,16 @@ for image_path in image_paths:
         2
     )
 
-
-    # Объединяем три изображения
-
+    # Combine three images
     combined = np.hstack([
         original_labeled,
         distorted_labeled,
         undistorted_labeled
     ])
 
-
     # ======================================
-    # СОХРАНЯЕМ РЕЗУЛЬТАТЫ
+    # SAVE RESULTS
     # ======================================
-
     cv2.imwrite(
         os.path.join(
             output_folder,
@@ -199,7 +159,6 @@ for image_path in image_paths:
         ),
         img
     )
-
     cv2.imwrite(
         os.path.join(
             output_folder,
@@ -207,7 +166,6 @@ for image_path in image_paths:
         ),
         distorted
     )
-
     cv2.imwrite(
         os.path.join(
             output_folder,
@@ -215,7 +173,6 @@ for image_path in image_paths:
         ),
         undistorted
     )
-
     cv2.imwrite(
         os.path.join(
             output_folder,
@@ -224,28 +181,22 @@ for image_path in image_paths:
         combined
     )
 
-
     # ======================================
-    # ПОКАЗЫВАЕМ РЕЗУЛЬТАТ
+    # SHOW RESULT
     # ======================================
-
     cv2.imshow(
         f"Original | Distorted | Undistorted - {filename}",
         combined
     )
-
-    # Нажми любую клавишу, чтобы перейти
-    # к следующей фотографии
-
+    # Press any key to continue
+    # to the next photo
     cv2.waitKey(0)
-
     cv2.destroyAllWindows()
 
-
 print()
 print("===================================")
-print("✅ Все фотографии обработаны!")
+print("✅ All photos have been processed!")
 print("===================================")
 print()
-print(f"Результаты находятся здесь:")
+print(f"Results are located here:")
 print(output_folder)

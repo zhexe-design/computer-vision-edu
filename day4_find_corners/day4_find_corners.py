@@ -4,18 +4,16 @@ import glob
 import os
 
 # ==========================================
-# НАСТРОЙКИ
+# SETTINGS
 # ==========================================
 
-# Количество ВНУТРЕННИХ углов шахматной доски
-# Например: 9 углов по горизонтали и 6 по вертикали
 CHESSBOARD_SIZE = (9, 6)
 
-# Размер одной клетки в метрах
-# Пока это значение не очень важно
+# Size of one square in meters
+# This value is not very important for now
 SQUARE_SIZE = 0.025
 
-# Критерии уточнения положения углов
+# Criteria for refining corner positions
 criteria = (
     cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER,
     30,
@@ -23,7 +21,7 @@ criteria = (
 )
 
 # ==========================================
-# ПОДГОТОВКА 3D-ТОЧЕК
+# PREPARING 3D POINTS
 # ==========================================
 
 objp = np.zeros(
@@ -38,16 +36,16 @@ objp[:, :2] = np.mgrid[
 
 objp *= SQUARE_SIZE
 
-# Здесь будут храниться точки
-objpoints = []  # 3D точки
-imgpoints = []  # 2D точки
+# Points will be stored here
+objpoints = []  # 3D points
+imgpoints = []  # 2D points
 
-print("Программа запущена.")
-print(f"Размер доски: {CHESSBOARD_SIZE}")
-print(f"Размер клетки: {SQUARE_SIZE} м")
+print("Program started.")
+print(f"Chessboard size: {CHESSBOARD_SIZE}")
+print(f"Square size: {SQUARE_SIZE} m")
 
 # ==========================================
-# ПОИСК ФОТОГРАФИЙ
+# SEARCHING FOR IMAGES
 # ==========================================
 
 images = (
@@ -56,38 +54,38 @@ images = (
 )
 
 # ==========================================
-# ЕСЛИ ФОТОГРАФИЙ ПОКА НЕТ
+# IF THERE ARE NO IMAGES YET
 # ==========================================
 
 if len(images) == 0:
     print()
-    print("Фотографии не найдены.")
-    print("Папка calibration_images/ пока пустая.")
+    print("No images found.")
+    print("The calibration_images/ folder is empty.")
     print()
-    print("Подготовка 3D-точек прошла успешно.")
-    print(f"Количество точек на одной доске: {len(objp)}")
+    print("3D points preparation completed successfully.")
+    print(f"Number of points on one board: {len(objp)}")
 
 else:
     # ==========================================
-    # ОБРАБОТКА ФОТОГРАФИЙ
+    # PROCESSING IMAGES
     # ==========================================
 
-    print(f"Найдено фотографий: {len(images)}")
+    print(f"Found images: {len(images)}")
     print()
 
     for fname in images:
 
-        print(f"Обрабатывается: {fname}")
+        print(f"Processing: {fname}")
 
         img = cv2.imread(fname)
 
         if img is None:
-            print("  Ошибка загрузки изображения")
+            print("  Error loading image")
             continue
 
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-        # Поиск углов шахматной доски
+        # Finding chessboard corners
         ret, corners = cv2.findChessboardCorners(
             gray,
             CHESSBOARD_SIZE,
@@ -95,9 +93,9 @@ else:
         )
 
         if ret:
-            print("  Углы найдены!")
+            print("  Corners found!")
 
-            # Уточняем положение углов
+            # Refine corner positions
             corners2 = cv2.cornerSubPix(
                 gray,
                 corners,
@@ -106,11 +104,11 @@ else:
                 criteria
             )
 
-            # Сохраняем точки
+            # Save points
             objpoints.append(objp)
             imgpoints.append(corners2)
 
-            # Рисуем найденные углы
+            # Draw detected corners
             cv2.drawChessboardCorners(
                 img,
                 CHESSBOARD_SIZE,
@@ -118,28 +116,28 @@ else:
                 ret
             )
 
-            # Показываем изображение
+            # Display image
             cv2.imshow("Corners", img)
             cv2.waitKey(500)
 
         else:
-            print("  Углы НЕ найдены.")
+            print("  Corners NOT found.")
 
     cv2.destroyAllWindows()
 
     # ==========================================
-    # РЕЗУЛЬТАТ
+    # RESULT
     # ==========================================
 
     print()
     print("================================")
-    print("Результат")
+    print("Result")
     print("================================")
 
-    print(f"Всего фотографий: {len(images)}")
-    print(f"Успешно найдено досок: {len(objpoints)}")
+    print(f"Total images: {len(images)}")
+    print(f"Successfully detected boards: {len(objpoints)}")
 
     if len(objpoints) > 0:
-        print("Можно переходить к калибровке камеры.")
+        print("You can proceed to camera calibration.")
     else:
-        print("Ни на одной фотографии доска не найдена.")
+        print("No chessboard was found in any image.")
