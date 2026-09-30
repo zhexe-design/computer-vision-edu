@@ -1,8 +1,20 @@
+**Mean Reprojection Error: ~0.18–0.26 pixels**
+
 # Day 5 - Camera Calibration
+
+## Results
+
+### Before vs After
+
+![Before vs After](results/comparison_1.jpg)  
+
+### Coordinate Axes
+
+![Axes visualization](results/axes_visualization.jpg)
 
 ## Goal
 
-The goal of this project is to learn how to calibrate a camera using a chessboard pattern and understand the results of the calibration.
+The goal of this project is to learn how to calibrate a real camera using a chessboard pattern and understand the results of the calibration.
 
 After this project, I can:
 
@@ -22,7 +34,7 @@ Camera calibration is an important step in many Computer Vision and 3D applicati
 
 A real camera has some distortion, so the image is not always a perfect representation of the real world.
 
-Camera calibration helps us find the camera parameters that describe how 3D points are projected onto a 2D image.
+Camera calibration helps find the camera parameters that describe how 3D points are projected onto a 2D image.
 
 Calibration is used in many areas, for example:
 
@@ -36,10 +48,19 @@ Calibration is used in many areas, for example:
 
 If the camera parameters are not accurate, later 3D calculations can also contain errors.
 
+## Capture Conditions
+
+* Real smartphone photos
+* Uncontrolled indoor lighting
+* Different angles, distances and positions of the chessboard
+
+Using real smartphone photos makes the calibration more realistic, but also introduces more variation than a controlled or synthetic dataset.
+
 ## Project Structure
 
 ```text
 day5_calibration/
+
 │
 ├── calibration_images/
 │   ├── image1.jpg
@@ -147,16 +168,16 @@ These values contain the main camera calibration results.
 
 ## Calibration Results
 
-### Camera Matrix K
+### Intrinsic Matrix K
 
 The camera matrix contains the main intrinsic parameters of the camera.
 
-It has this form:
+The matrix has the following form:
 
 ```text
-[ fx   0   cx ]
-[  0  fy   cy ]
-[  0   0    1 ]
+[[fx  0  cx]
+ [ 0 fy  cy]
+ [ 0  0   1]]
 ```
 
 Where:
@@ -166,7 +187,7 @@ Where:
 * `cx` - principal point X coordinate
 * `cy` - principal point Y coordinate
 
-The program prints the matrix:
+The actual matrix is calculated by OpenCV from the calibration images and printed by the program:
 
 ```python
 print(K)
@@ -174,21 +195,26 @@ print(K)
 
 ### Distortion Coefficients
 
-The program also calculates lens distortion coefficients:
+The distortion coefficients describe how the camera lens changes the image.
 
-```python
-dist
+The coefficients are represented as:
+
+```text
+[k1, k2, p1, p2, k3]
 ```
 
-They describe how much the image is distorted by the camera lens.
+Where:
 
-They are used by OpenCV when correcting the image.
+* `k1`, `k2`, `k3` - radial distortion coefficients
+* `p1`, `p2` - tangential distortion coefficients
 
-The program prints them with:
+The program prints the calculated values using:
 
 ```python
 print(dist)
 ```
+
+These parameters are later used to correct lens distortion.
 
 ### Reprojection Error
 
@@ -202,13 +228,15 @@ The program calculates the error for every calibration image and then calculates
 mean_error = total_error / len(objpoints)
 ```
 
-The final value is printed in pixels: 0.262884 pixels
+The final mean reprojection error is approximately:
 
 ```text
-Mean reprojection error: 0.18 pixels
+~0.18–0.26 pixels
 ```
 
-A lower reprojection error means that the calculated camera parameters fit the detected calibration points more closely. The error should still be interpreted together with the calibration images and detection quality.
+This means that, on average, the projected chessboard points are very close to the detected image points.
+
+A lower reprojection error means that the calculated camera parameters fit the detected calibration points more closely. The error should still be interpreted together with the calibration images and the quality of corner detection.
 
 ## Undistortion
 
@@ -220,7 +248,7 @@ The project uses:
 cv2.undistort()
 ```
 
-The program creates comparison images:
+The program creates comparison images showing:
 
 ```text
 Original | Undistorted
@@ -235,6 +263,8 @@ comparison_1.jpg
 comparison_2.jpg
 comparison_3.jpg
 ```
+
+The comparison images show how the estimated lens distortion changes the appearance of the original image.
 
 ## Coordinate Axes
 
@@ -252,7 +282,7 @@ The result is saved as:
 axes_visualization.jpg
 ```
 
-This helps visualize the camera pose relative to the chessboard.
+This helps visualize the camera pose relative to the chessboard and connects the 2D calibration result with a 3D coordinate system.
 
 ## Saved Calibration Parameters
 
@@ -280,6 +310,8 @@ K = data["K"]
 dist = data["dist"]
 ```
 
+This makes it possible to reuse the calibration results in other Computer Vision or 3D projects.
+
 ## Final Output
 
 At the end of the program, the main results are printed:
@@ -290,22 +322,22 @@ FINAL CALIBRATION PARAMETERS
 ================================
 
 1. Mean reprojection error:
-0.18 pixels
+~0.18–0.26 pixels
 
 2. Camera matrix K:
-[[... ... ...]
- [... ... ...]
- [... ... ...]]
+[[fx  0  cx]
+ [ 0 fy  cy]
+ [ 0  0   1]]
 
 3. Distortion coefficients:
-[[... ... ...]]
+[k1, k2, p1, p2, k3]
 ```
 
-The exact values depend on the camera and the calibration images.
+The exact values of `K` and the distortion coefficients depend on the camera and the calibration images.
 
 ## Results Folder
 
-After running the program, the `results` folder can contain:
+After running the program, the `results` folder contains:
 
 * `camera_calibration.npz` - saved camera parameters
 * `corners_*.jpg` - images with detected chessboard corners
@@ -322,23 +354,26 @@ calibration_images/
 
 Then run:
 
+```bash
 python calibration.py
 ```
 
-The program will detect the chessboard corners, calibrate the camera, calculate the reprojection error, save the calibration parameters, and create visualization results.
+The program will:
+
+1. Find the calibration images
+2. Detect the chessboard corners
+3. Refine the detected corners
+4. Calibrate the camera
+5. Calculate the reprojection error
+6. Save the camera parameters
+7. Create undistortion comparisons
+8. Create a coordinate axes visualization
 
 ## What I Learned
 
-In this project I learned how to:
+* Full calibration pipeline with OpenCV
+* How to evaluate calibration quality using reprojection error
+* Why real smartphone data is harder than synthetic
+* How to save and reuse camera parameters
 
-* Prepare chessboard points for camera calibration
-* Detect and refine chessboard corners with OpenCV
-* Calibrate a camera with `cv2.calibrateCamera()`
-* Understand the camera matrix `K`
-* Understand distortion coefficients
-* Calculate reprojection error
-* Save calibration parameters
-* Undistort images
-* Visualize 3D coordinate axes on an image
-
-This is a basic camera calibration pipeline that can be used as a starting point for more advanced 3D Computer Vision tasks.
+This project gave me a complete basic camera calibration pipeline that can be used as a starting point for more advanced 3D Computer Vision tasks.
