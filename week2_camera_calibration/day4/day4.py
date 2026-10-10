@@ -99,6 +99,8 @@ print(
     f"{calibration_size[0]} x {calibration_size[1]}"
 )
 
+print("/n Check")
+
 
 # ============================================================
 # LOAD TEST IMAGES
