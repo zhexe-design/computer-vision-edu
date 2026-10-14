@@ -1,111 +1,70 @@
-Description
+# Day 3 — Lens Distortion
 
-In this task I learned about camera lens distortion and how to add and remove distortion using OpenCV.
+Apply artificial **radial (barrel) distortion** to photos and remove it with OpenCV.
 
-Camera distortion changes the position of points in an image. Because of this, straight lines near the edges of an image can look curved.
+Produces a side-by-side comparison: **Original | Distorted | Undistorted**.
 
-I used several photos with straight lines, for example doors, windows, books and buildings.
+## Result
 
-Radial Distortion
+![Comparison](results/1_comparison.jpg)
 
-Radial distortion happens because of the camera lens. The further a point is from the center of the image, the stronger the distortion can be.
+Left → right: Original | Distorted (barrel) | Undistorted
 
-There are two common types:
+## What this demonstrates
 
-Barrel distortion — lines look curved outward from the center. The image looks a little like a barrel.
-Pincushion distortion — lines look curved inward toward the center. The image looks like a pincushion.
+- Radial distortion coefficients `k1`, `k2`, `k3` (and tangential `p1`, `p2`)
+- Barrel distortion with negative `k1`
+- Approximate *adding* of distortion via inverse undistortion map
+- Correction with `cv2.undistort`
+- Visual comparison of straight lines before / after
 
-The main radial distortion coefficients are:
+## Distortion model (OpenCV)
 
-k1
-k2
-k3
+```text
+dist = [k1, k2, p1, p2, k3]
+Coefficients used in this project:
+PythonDIST_COEFFS = [-0.3, 0.1, 0.0, 0.0, 0.0]  # k1 < 0 → barrel
 
-The first coefficient k1 has a strong effect on the distortion.
+Barrel — lines curve outward from the center (k1 < 0)
+Pincushion — lines curve inward (k1 > 0)
 
-In my experiment:
+Pipeline
+textClean image
+    │
+    ▼
+initUndistortRectifyMap + remap   ≈ add distortion
+    │
+    ▼
+cv2.undistort                     → remove distortion
+    │
+    ▼
+hstack: Original | Distorted | Undistorted
+Note: Adding distortion is approximated by applying the undistortion map to a clean image (inverse warp). Undistorting that result recovers a close version of the original. This is a standard learning demo; a full forward distortion model is more involved.
+How to run
+Bashcd week1_camera_models/day3_distortion
 
-dist_coeffs = np.array([-0.3, 0.1, 0.0, 0.0, 0.0])
+python -m venv venv
+# Windows:     venv\Scripts\activate
+# macOS/Linux: source venv/bin/activate
 
-A negative k1 creates barrel distortion.
+pip install numpy opencv-python
+python main.py
 
-A positive k1 creates pincushion distortion.
+Put photos in images/ (jpg / png).
+Run the script.
+Press any key in the OpenCV window to go to the next image.
+Results are written to results/.
 
-Tangential Distortion
-
-Tangential distortion happens when the camera lens is not perfectly aligned with the camera sensor.
-
-The main tangential distortion coefficients are:
-
-p1
-p2
-
-Radial distortion is related to the distance from the image center, while tangential distortion is related to the position and alignment of the lens.
-
-In this task I mainly worked with radial distortion.
-
-What I Did
-
-The program does the following:
-
-Reads all images from the images folder.
-Creates a camera matrix.
-Creates artificial radial distortion.
-Applies the distortion to the original image.
-Removes the distortion using OpenCV.
-Creates a comparison of the original, distorted and undistorted images.
-Saves the results to the results folder.
-
-The main OpenCV functions used in the project are:
-
-cv2.initUndistortRectifyMap()
-cv2.remap()
-cv2.undistort()
-Results
-
-For each input image, the program creates four files:
-
-original.jpg
-distorted.jpg
-undistorted.jpg
-comparison.jpg
-
-The comparison image contains:
-
-Original | Distorted | Undistorted
-
-This makes it easier to see how the distortion changes the straight lines and how the correction works.
-
-Project Structure
-day3_distortion/
-│
-├── day3_distortion.py
+Project structure
+textday3_distortion/
+├── main.py
 ├── images/
 │   ├── 1.jpg
 │   ├── 2.jpg
-│   └── ...
-│
-└── results/
-    ├── 1_original.jpg
-    ├── 1_distorted.jpg
-    ├── 1_undistorted.jpg
-    └── 1_comparison.jpg
-How to Run
-
-Install the required libraries:
-
-pip install opencv-python numpy
-
-Then run:
-
-python day3_distortion.py
-
-The program automatically finds all supported images in the images folder and processes them one by one.
-
-Conclusion
-
-In this task I learned the difference between radial and tangential distortion.
-
-I also learned how to artificially add distortion to an image and then remove it using OpenCV.
-
-This is important for 3D reconstruction because camera distortion can change the position of points in an image. If the distortion is ignored, the 3D reconstruction can have incorrect results. Before serious 3D work, camera calibration and distortion correction are therefore important.
+│   └── 3.jpg
+├── results/
+│   ├── 1_original.jpg
+│   ├── 1_distorted.jpg
+│   ├── 1_undistorted.jpg
+│   └── 1_comparison.jpg
+└── README.md
