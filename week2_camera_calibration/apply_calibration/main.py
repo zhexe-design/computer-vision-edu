@@ -1,13 +1,6 @@
 """
 Day 3 — Apply Camera Calibration
 
-Run from any working directory:
-    python path/to/day3_apply_calibration/main.py
-
-Expected input:
-    test_images/                    ordinary photos from the calibrated camera
-    ../day2_quality_analysis/results/camera_params.yaml
-        (default parameter path; change PARAMS_FILE if your folders differ)
 
 Outputs:
     results/undistorted_*.jpg
@@ -30,7 +23,7 @@ RESULTS_DIR = BASE_DIR / "results"
 # Default location when both projects are inside week2_camera_calibration/.
 PARAMS_FILE = (
     BASE_DIR.parent
-    / "day2_quality_analysis"
+    / "quality_analysis"
     / "results"
     / "camera_params.yaml"
 )
