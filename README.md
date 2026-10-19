@@ -91,35 +91,226 @@ However, a lower reprojection error does not automatically guarantee better undi
 
 ## Visual Results
 
-### Week 1 — Camera Calibration
+This section presents selected visual results from the camera geometry and calibration experiments developed throughout the repository.
 
-The Week 1 calibration visualizations are available in the corresponding project folder.
+The examples demonstrate the practical application of camera projection, chessboard-based calibration, lens distortion correction, and camera pose visualization using real images and OpenCV.
 
-**Camera axes visualization**
+---
 
-![Camera axes visualization](./week1_camera_models/day5_calibration/axes_visualization.jpg)
+### Week 1 — Camera Models and Camera Calibration
 
-**Undistortion comparison**
+Week 1 focuses on the fundamentals of camera geometry, including 3D-to-2D projection, camera control, lens distortion, and chessboard-based camera calibration.
 
-![Week 1 calibration comparison](./week1_camera_models/day5_calibration/comparison_1.jpg)
+#### Day 1 — Pinhole Camera Model
 
-### Week 2 — Calibration Quality
+Demonstrates the projection of 3D points onto a 2D image plane using a pinhole camera model.
 
-Week 2 includes additional visualizations for evaluating calibration quality.
+**Key concepts:**
+- Perspective projection.
+- Mapping 3D coordinates to 2D image coordinates.
+- Camera intrinsic parameters.
+- Visualization of a projected 3D cube and coordinate axes.
 
-**Undistortion tests**
 
-The original and corrected versions of ordinary photographs are saved in the Week 2 results directory.
+![Pinhole camera projection](./week1_camera_models/day1_pinhole/output/result.png)
 
-**Chessboard corner detection**
+---
 
-Detected internal corners are visualized to verify successful chessboard detection.
+#### Day 2 — Camera Orbit Control
 
-**Calibration quality comparison**
+Demonstrates camera movement around a 3D object using orbit control and a look-at transformation.
 
-Initial and final reprojection errors are compared to evaluate the effect of excluding four high-error images.
+**Key concepts:**
+- Camera position and orientation.
+- Look-at transformations.
+- Circular camera movement around a target.
+- Visualization of a 3D scene from different viewpoints.
 
-See the [Week 2 calibration project](./week2_camera_calibration/day1) and [calibration quality analysis](./week2_camera_calibration/day2) for details and generated outputs.
+
+![Camera orbit animation](./week1_camera_models/day2_camera_control/output/orbit.gif)
+
+---
+
+#### Day 3 — Lens Distortion
+
+Explores radial lens distortion and its effect on image geometry.
+
+The experiment demonstrates how lens distortion changes the apparent positions of image points and how distortion correction can improve geometric consistency.
+
+**Key concepts:**
+- Radial lens distortion.
+- Distortion parameters.
+- Image correction.
+- Comparison of distorted and corrected images.
+
+
+---
+
+#### Day 4 — Chessboard Corner Detection
+
+Focuses on detecting internal chessboard corners in images, providing image points for camera calibration.
+
+The detected corners can be refined to sub-pixel accuracy before being used in the calibration process.
+
+**Key concepts:**
+- Chessboard pattern detection.
+- Internal corner localization.
+- Sub-pixel corner refinement.
+- Preparation of 2D image points for calibration.
+
+**Result:**
+
+<!-- Add your Day 4 chessboard detection image here -->
+
+![Detected chessboard corners](./week1_camera_models/day4_find_corners/results/example_corners.jpg)
+
+---
+
+#### Day 5 — Camera Calibration
+
+Implements a complete camera calibration pipeline using OpenCV, NumPy, and a chessboard pattern.
+
+The script detects chessboard corners, estimates the camera's intrinsic matrix and lens distortion coefficients, evaluates calibration accuracy, and generates visualizations of the results.
+
+Calibration was performed using chessboard images with different angles and positions.
+
+**Calibration settings:**
+- Chessboard inner corners: `9 × 6`
+- Square size: `0.025 m` (2.5 cm)
+- Calibration method: `cv2.calibrateCamera()`
+- Corner refinement: `cv2.cornerSubPix()`
+- Image undistortion: `cv2.undistort()`
+
+**Mean reprojection error: approximately 0.18–0.26 pixels**, depending on the input images and calibration results.
+
+##### 1. Chessboard Corner Detection
+
+The calibration process begins by identifying the internal corners of the chessboard.
+
+These image points are matched with known 3D coordinates on the chessboard plane. Their correspondences provide the geometric information required to estimate the camera parameters.
+
+**Result:**
+
+![Day 5 — Detected chessboard corners](./week1_camera_models/day5_calibration/results/corners_img01.jpg)
+
+
+##### 2. Original vs. Undistorted Image
+
+After estimating the camera matrix and distortion coefficients, the script applies lens distortion correction.
+
+The comparison illustrates the difference between the original image and its undistorted version.
+
+**Result:**
+
+
+![Day 5 — Original vs. undistorted image](./week1_camera_models/day5_calibration/results/comparison_1.jpg)
+
+*Comparison of the original image and the image after lens distortion correction using the estimated camera parameters.*
+
+##### 3. 3D Coordinate Axes Visualization
+
+The estimated camera parameters and chessboard pose can be used to project 3D coordinate axes onto the image.
+
+This visualization connects the calibration results with camera pose estimation and 3D-to-2D projection.
+
+**Result:**
+
+
+![Day 5 — 3D coordinate axes](./week1_camera_models/day5_calibration/results/axes_visualization.jpg)
+
+*3D coordinate axes projected onto the chessboard using the estimated camera parameters and pose.*
+
+##### What Day 5 Demonstrates
+
+- Chessboard corner detection and sub-pixel refinement.
+- Estimation of the camera intrinsic matrix `K`.
+- Estimation of radial and tangential distortion coefficients.
+- Camera calibration using `cv2.calibrateCamera()`.
+- Calculation of mean and per-image reprojection errors.
+- Lens distortion correction using `cv2.undistort()`.
+- Camera pose visualization using `cv2.drawFrameAxes()`.
+- Saving calibration parameters for reuse.
+
+The saved parameters can be reused in subsequent experiments without repeating the entire calibration process.
+
+[View the complete Day 5 implementation and instructions](./week1_camera_models/day5_calibration).
+
+---
+
+#### Day 6 — Calibration Testing
+
+Extends the initial calibration work with additional testing and verification.
+
+**Key concepts:**
+- Testing estimated camera parameters.
+- Examining calibration behavior on additional images.
+- Validating the calibration workflow.
+
+
+---
+
+### Week 2 — Smartphone Camera Calibration and Quality Analysis
+
+Week 2 builds on the camera geometry concepts from Week 1 and focuses on a more complete calibration workflow using real smartphone photographs.
+
+The experiments investigate calibration accuracy, image-level reprojection errors, and the effect of removing high-error images from the calibration dataset.
+
+#### Day 1 — Full Camera Calibration
+
+The calibration pipeline estimates the intrinsic camera matrix and distortion coefficients from smartphone photographs of a chessboard.
+
+The resulting parameters are then used to generate undistorted images and calibration visualizations.
+
+**Key outputs:**
+- Camera intrinsic matrix.
+- Lens distortion coefficients.
+- Chessboard corner visualizations.
+- Original-versus-undistorted image comparisons.
+- Saved calibration parameters.
+
+**Result:**
+
+[View the Week 2 Day 1 implementation](./week2_camera_calibration/day1).
+
+#### Day 2 — Calibration Quality Analysis
+
+Analyzes the reprojection error of individual calibration images to identify observations that contribute disproportionately to the overall error.
+
+Four high-error images were excluded from the initial dataset, reducing the mean reprojection error from `1.43 px` to `0.96 px`.
+
+| Metric | Initial Calibration | Refined Calibration |
+|---|---:|---:|
+| Calibration images | 23 | 19 |
+| Mean reprojection error | 1.43 px | 0.96 px |
+| RMS calibration error | 1.97 px | 1.32 px |
+| Images removed | 0 | 4 |
+
+**Mean reprojection error improvement: 32.94%.**
+
+The results demonstrate how examining individual image errors can help refine a calibration dataset.
+
+However, a lower reprojection error does not automatically guarantee better undistortion for every photograph. Visual validation and testing on independent images remain important.
+
+**Result:**
+
+
+[View the Week 2 calibration quality analysis](./week2_camera_calibration/day2).
+
+---
+
+### Summary of Visual Results
+
+The visual examples illustrate the progression from basic camera geometry to practical camera calibration and quality assessment.
+
+| Experiment | Main Result |
+|---|---|
+| Day 1 — Pinhole Camera | 3D-to-2D projection |
+| Day 2 — Camera Control | Camera orbit animation |
+| Day 3 — Lens Distortion | Distortion correction |
+| Day 4 — Chessboard Detection | Detected internal corners |
+| Day 5 — Camera Calibration | Camera parameters, reprojection error, and 3D axes visualization |
+| Week 2 — Full Calibration | Smartphone calibration and undistortion |
+| Week 2 — Quality Analysis | Reduced mean reprojection error after dataset refinement |
 
 ---
 
