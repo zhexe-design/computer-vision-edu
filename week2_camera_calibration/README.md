@@ -268,7 +268,7 @@ week2_camera_calibration/
 │   ├── calibration_images/
 │   ├── results/
 │   ├── test_images/
-│   ├── camera_params.yaml
+│   ├── camera_params.yaml 
 │   ├── main.py
 │   └── README.md
 │
