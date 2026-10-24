@@ -1,0 +1,98 @@
+WEEK 3 — DAY 2: POINT CLOUD FILTERING
+============================================================
+
+Original points: 30,000
+After voxel downsampling: 1,569
+Voxel size: 0.01
+
+EXPERIMENT RESULTS
+------------------------------------------------------------
+
+Name: statistical_conservative
+Method: Statistical
+Parameters: nb_neighbors=20, std_ratio=3.0
+Points before: 1,569
+Points after: 1,565
+Points removed: 4
+Removed percentage: 0.25%
+
+Name: statistical_balanced
+Method: Statistical
+Parameters: nb_neighbors=20, std_ratio=2.0
+Points before: 1,569
+Points after: 1,520
+Points removed: 49
+Removed percentage: 3.12%
+
+Name: statistical_aggressive
+Method: Statistical
+Parameters: nb_neighbors=20, std_ratio=1.0
+Points before: 1,569
+Points after: 1,257
+Points removed: 312
+Removed percentage: 19.89%
+
+Name: statistical_neighbors_10
+Method: Statistical
+Parameters: nb_neighbors=10, std_ratio=2.0
+Points before: 1,569
+Points after: 1,517
+Points removed: 52
+Removed percentage: 3.31%
+
+Name: statistical_neighbors_40
+Method: Statistical
+Parameters: nb_neighbors=40, std_ratio=2.0
+Points before: 1,569
+Points after: 1,507
+Points removed: 62
+Removed percentage: 3.95%
+
+Name: radius_conservative
+Method: Radius
+Parameters: nb_points=8, radius=0.05
+Points before: 1,569
+Points after: 1,567
+Points removed: 2
+Removed percentage: 0.13%
+
+Name: radius_balanced
+Method: Radius
+Parameters: nb_points=16, radius=0.05
+Points before: 1,569
+Points after: 1,533
+Points removed: 36
+Removed percentage: 2.29%
+
+Name: radius_aggressive
+Method: Radius
+Parameters: nb_points=24, radius=0.05
+Points before: 1,569
+Points after: 1,435
+Points removed: 134
+Removed percentage: 8.54%
+
+Name: radius_small
+Method: Radius
+Parameters: nb_points=16, radius=0.025
+Points before: 1,569
+Points after: 871
+Points removed: 698
+Removed percentage: 44.49%
+
+Name: radius_large
+Method: Radius
+Parameters: nb_points=16, radius=0.1
+Points before: 1,569
+Points after: 1,569
+Points removed: 0
+Removed percentage: 0.00%
+
+
+HOW TO CHOOSE THE BEST RESULT
+------------------------------------------------------------
+Compare the saved images and point clouds.
+Prefer a result that removes isolated noise while
+preserving the object's shape and fine details.
+The largest percentage of removed points does not
+necessarily indicate the best result.
