@@ -457,35 +457,12 @@ Combines the selected filtering configuration with normal estimation and ROI cro
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/zhexe-design/computer-vision-edu.git
-cd computer-vision-edu
-```
+cd week3_pointclouds
+pip install -r ../requirements.txt   # includes open3d, matplotlib
 
-### 2. Create a Virtual Environment
-
-```bash
-python -m venv venv
-```
-
-### 3. Activate the Environment
-
-**Windows PowerShell:**
-
-```powershell
-.\venv\Scripts\Activate.ps1
-```
-
-**Windows Command Prompt:**
-
-```bat
-venv\Scripts\activate.bat
-```
-
-**macOS / Linux:**
-
-```bash
-source venv/bin/activate
-```
+python day1_pointcloud_basics.py
+python day2_filtering.py
+python day3_normals_and_roi.py
 
 ### 4. Install Dependencies
 
@@ -539,32 +516,20 @@ computer-vision-edu/
 │   │   └── README.md
 │   │
 │   └── README.md
-└── week3/
-    ├── README.md
-    │
-    ├── day1/
-    │   ├── main.py
-    │   ├── results/
-    │   │   ├── before.png
-    │   │   └── after.png
-    │   └── README.md
-    │
-    ├── day2/
-    │   ├── main.py
-    │   ├── results/
-    │   │   ├── experiment_summary.txt
-    │   │   └── ...
-    │   └── README.md
-    │
-    └── day3/
-        ├── day3_normals_and_roi.py
-        ├── results/
-        │   ├── cleaned/
-        │   ├── with_normals/
-        │   ├── cropped/
-        │   ├── 05_pipeline_comparison.png
-        │   └── day3_summary.txt
-        └── README.md
+├── week3_pointclouds/
+│   ├── day1_pointcloud_basics.py
+│   ├── day2_filtering.py
+│   ├── day3_normals_and_roi.py
+│   ├── results/
+│   │   ├── statistical/
+│   │   ├── radius/
+│   │   ├── cleaned/
+│   │   ├── with_normals/
+│   │   ├── cropped/
+│   │   ├── experiment_summary.txt
+│   │   ├── day3_summary.txt
+│   │   └── 05_pipeline_comparison.png
+│   └── README.md
 
 *The structure above illustrates the intended organization. Adjust folder and script names if your actual repository uses different names.*
 
