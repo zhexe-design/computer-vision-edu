@@ -4,7 +4,7 @@ A practical learning repository focused on the foundations of **3D Computer Visi
 
 The projects are organized by weeks and days, documenting the implementation process, experiments, results, and lessons learned.
 
-**Current progress: Month 1 — Weeks 1–2**
+**Current progress: Month 1 — Weeks 1–3**
 
 Topics covered:
 - Pinhole camera model and 3D-to-2D projection
@@ -15,6 +15,13 @@ Topics covered:
 - Reprojection error analysis
 - Image undistortion
 - Camera calibration quality improvement
+- 3D point cloud visualization with Open3D
+- Voxel downsampling
+- Statistical and Radius Outlier Removal
+- Point cloud filtering parameter studies
+- Surface normal estimation
+- Region of Interest (ROI) cropping
+- Point cloud cleaning pipelines
 
 ---
 
@@ -55,6 +62,34 @@ Week 2 builds on the camera geometry concepts from Week 1 and focuses on a more 
 | [Day 2 — Calibration Quality Analysis](./week2_camera_calibration/day2) | Per-image reprojection error analysis and calibration refinement | Mean reprojection error reduced from 1.43 px to 0.96 px |
 
 **Note:** The Week 1 and Week 2 calibration experiments use different datasets or calibration runs. Their results should be evaluated separately rather than treated as directly comparable measurements.
+
+---
+
+### Week 3 — Point Cloud Processing with Open3D
+
+Week 3 introduces 3D point cloud processing, focusing on noise removal, parameter evaluation, surface normal estimation, and ROI cropping. The experiments use the Stanford Bunny point cloud to develop a preprocessing workflow for subsequent 3D computer vision tasks.
+
+| Project | Description | Key Result |
+|---|---|---|
+| [Day 1 — Point Cloud Basics](./week3/day1) | Loading, inspecting, and visualizing 3D point clouds with Open3D | Stanford Bunny point cloud visualization |
+| [Day 2 — Point Cloud Filtering](./week3/day2) | Parameter study comparing voxel downsampling, Statistical Outlier Removal, and Radius Outlier Removal | Systematic comparison of filtering configurations to identify a suitable preprocessing strategy |
+| [Day 3 — Normals and ROI Pipeline](./week3/day3) | Combining downsampling, outlier removal, normal estimation, and ROI cropping | Processed point cloud reduced from 30,000 to 11,869 points |
+
+**Key result:** Day 2 investigates how filtering parameters affect noise removal and geometry preservation. Day 3 applies the selected filtering configuration in a combined cleaning pipeline, followed by normal estimation and ROI cropping.
+
+**Day 3 point count summary:**
+
+| Processing Stage | Points |
+|---|---:|
+| Original point cloud | 30,000 |
+| After voxel downsampling | 20,893 |
+| After statistical filtering | 20,260 |
+| After radius filtering | 20,180 |
+| After ROI cropping | 11,869 |
+
+The final ROI contains approximately 39.56% of the original point count. This reduction includes downsampling, outlier removal, and cropping; it does not represent noise removal alone.
+
+[View the Week 3 point cloud processing projects](./week3/).
 
 ---
 
@@ -296,6 +331,35 @@ However, a lower reprojection error does not automatically guarantee better undi
 
 [View the Week 2 calibration quality analysis](./week2_camera_calibration/day2).
 
+### Week 3 — Point Cloud Cleaning Pipeline
+
+Week 3 extends the repository from camera calibration to 3D point cloud processing using Open3D.
+
+The main result is a three-stage progression from point cloud visualization to systematic filter evaluation and a combined preprocessing pipeline.
+
+**Day 2 — Parameter Study**
+
+Different configurations of Statistical Outlier Removal and Radius Outlier Removal are evaluated to understand their effects on point density, outlier removal, and geometry preservation.
+
+The goal is to identify a suitable filtering configuration rather than simply remove the largest possible number of points.
+
+**Day 3 — Normals and ROI Pipeline**
+
+The selected filtering configuration is reused in a pipeline combining voxel downsampling, outlier removal, surface normal estimation, and ROI cropping.
+
+| Metric | Result |
+|---|---:|
+| Original points | 30,000 |
+| After voxel downsampling | 20,893 |
+| After statistical filtering | 20,260 |
+| After radius filtering | 20,180 |
+| After ROI cropping | 11,869 |
+| Total point count reduction | 60.44% |
+
+**Key takeaway:** Point cloud preprocessing is not just about reducing the number of points. Parameter selection must balance noise removal, geometry preservation, and the requirements of downstream operations.
+
+The resulting pipeline provides a foundation for point cloud registration, Point-to-Plane ICP, mesh reconstruction, and other 3D geometry processing tasks.
+
 ---
 
 ### Summary of Visual Results
@@ -311,6 +375,70 @@ The visual examples illustrate the progression from basic camera geometry to pra
 | Day 5 — Camera Calibration | Camera parameters, reprojection error, and 3D axes visualization |
 | Week 2 — Full Calibration | Smartphone calibration and undistortion |
 | Week 2 — Quality Analysis | Reduced mean reprojection error after dataset refinement |
+
+### Week 3 — Point Cloud Processing
+
+Week 3 focuses on preparing 3D point clouds for downstream geometry processing. The experiments progress from basic visualization to filtering parameter evaluation and a complete cleaning pipeline.
+
+#### Day 1 — Point Cloud Basics
+
+Introduces 3D point cloud representation and visualization using Open3D.
+
+**Key concepts:**
+- XYZ coordinates and 3D geometry.
+- Loading and rendering point clouds.
+- Inspecting point cloud structure.
+
+[View Day 1 — Point Cloud Basics](./week3/day1).
+
+#### Day 2 — Point Cloud Filtering
+
+Compares voxel downsampling, Statistical Outlier Removal, and Radius Outlier Removal using the Stanford Bunny dataset with 3% synthetic noise.
+
+**Key concepts:**
+- Point cloud density reduction.
+- Statistical and neighborhood-based outlier detection.
+- Filtering parameter comparison.
+- Balancing noise removal and geometry preservation.
+
+The main outcome is a parameter study designed to identify a suitable filtering configuration for the subsequent pipeline.
+
+[View Day 2 — Point Cloud Filtering](./week3/day2).
+
+#### Day 3 — Normals Estimation and ROI Cropping
+
+Combines the selected filtering configuration with normal estimation and ROI cropping.
+
+**Key results:**
+- Original point cloud: 30,000 points.
+- After voxel downsampling: 20,893 points.
+- After statistical filtering: 20,260 points.
+- After radius filtering: 20,180 points.
+- After ROI cropping: 11,869 points.
+
+**Pipeline comparison**
+
+![Week 3 Day 3 — Point Cloud Cleaning Pipeline](./week3/day3/results/05_pipeline_comparison.png)
+
+**Surface normals**
+
+![Week 3 Day 3 — Surface Normals](./week3/day3/results/with_normals/03_normals.png)
+
+**ROI cropping**
+
+![Week 3 Day 3 — Region of Interest](./week3/day3/results/cropped/04_roi.png)
+
+[View Day 3 — Normals and ROI Pipeline](./week3/day3).
+
+---
+
+### Week 3 Summary
+
+| Day | Focus | Main Outcome |
+|---|---|---|
+| Day 1 | Point cloud basics | 3D point cloud visualization |
+| Day 2 | Filtering parameter study | Comparison of filtering configurations |
+| Day 3 | Normals and ROI pipeline | Integrated preprocessing pipeline with 11,869 points remaining after cropping |
 
 ---
 
@@ -388,6 +516,7 @@ python day2_calibration_quality.py
 
 ```text
 computer-vision-edu/
+├── README.md
 │
 ├── week1_camera_models/
 │   ├── day1_pinhole/
@@ -410,9 +539,32 @@ computer-vision-edu/
 │   │   └── README.md
 │   │
 │   └── README.md
-│
-└── README.md
-```
+└── week3/
+    ├── README.md
+    │
+    ├── day1/
+    │   ├── main.py
+    │   ├── results/
+    │   │   ├── before.png
+    │   │   └── after.png
+    │   └── README.md
+    │
+    ├── day2/
+    │   ├── main.py
+    │   ├── results/
+    │   │   ├── experiment_summary.txt
+    │   │   └── ...
+    │   └── README.md
+    │
+    └── day3/
+        ├── day3_normals_and_roi.py
+        ├── results/
+        │   ├── cleaned/
+        │   ├── with_normals/
+        │   ├── cropped/
+        │   ├── 05_pipeline_comparison.png
+        │   └── day3_summary.txt
+        └── README.md
 
 *The structure above illustrates the intended organization. Adjust folder and script names if your actual repository uses different names.*
 

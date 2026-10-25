@@ -1,0 +1,25 @@
+WEEK 3 — DAY 3: POINT CLOUD CLEANING
+=============================================
+
+Input cloud: stanford_bunny
+Original points: 30000
+Voxel-downsampled points: 20893
+After statistical filtering: 20260
+After radius filtering: 20180
+After ROI cropping: 11869
+
+Parameters
+------------------------------
+Voxel size: 0.00124996
+Statistical neighbors: 20
+Statistical std_ratio: 2.0
+Radius: 0.00374826
+Radius minimum neighbors: 8
+Normal search radius: 0.00749651
+Normal max neighbors: 30
+ROI minimum ratios: (0.1, 0.1, 0.1)
+ROI maximum ratios: (0.9, 0.9, 0.9)
+
+ROI bounding box
+Min bound: [-0.07909207  0.0487292  -0.04972257]
+Max bound: [0.0454035  0.17186362 0.04672223]
