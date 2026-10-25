@@ -2,3 +2,5 @@ numpy
 opencv-python
 imageio
 PyYAML
+open3d
+matplotlib
