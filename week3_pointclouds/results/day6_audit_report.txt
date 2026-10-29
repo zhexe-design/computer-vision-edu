@@ -1,0 +1,54 @@
+WEEK 3 — DAY 6
+PROJECT FINALIZATION AUDIT
+======================================================================
+Timestamp: 2026-10-29T22:49:42
+Project directory: Y:\Python CV\computer-vision-edu\week3_pointclouds
+Checks passed: 9
+Checks failed: 11
+
+CHECK DETAILS
+----------------------------------------------------------------------
+[PASS] day1_pointcloud_basics.py: Found: Y:\Python CV\computer-vision-edu\week3_pointclouds\day1_pointcloud_basics.py
+[PASS] day2_filtering.py: Found: Y:\Python CV\computer-vision-edu\week3_pointclouds\day2_filtering.py
+[PASS] day3_normals_and_roi.py: Found: Y:\Python CV\computer-vision-edu\week3_pointclouds\day3_normals_and_roi.py
+[PASS] day4_advanced_cleaning.py: Found: Y:\Python CV\computer-vision-edu\week3_pointclouds\day4_advanced_cleaning.py
+[FAIL] day5_full_pipeline.py: Missing script
+[PASS] data: Directory exists
+[PASS] results: Directory exists
+[PASS] results\cleaned: Directory exists
+[PASS] results\with_normals: Directory exists
+[PASS] results\cropped: Directory exists
+[FAIL] Cleaned point cloud: File does not exist
+[FAIL] Point cloud with normals: File does not exist
+[FAIL] Cropped ROI: File does not exist
+[FAIL] Original point cloud: Visualization is missing
+[FAIL] Cleaned point cloud: Visualization is missing
+[FAIL] Point cloud with normals: Visualization is missing
+[FAIL] Cropped ROI: Visualization is missing
+[FAIL] Cleaned source cloud: File does not exist
+[FAIL] Cloud with normals: File does not exist
+[FAIL] Point count consistency: Cannot compare clouds because one or both are invalid
+
+README
+----------------------------------------------------------------------
+Generated document: Y:\Python CV\computer-vision-edu\week3_pointclouds\README_day6_draft.md
+
+TEMPORARY FILES FOR MANUAL REVIEW
+----------------------------------------------------------------------
+No obvious temporary files detected.
+
+FINAL MANUAL CHECKLIST
+----------------------------------------------------------------------
+[ ] Confirm dataset source and licensing.
+[ ] Inspect all visualizations.
+[ ] Verify final cleaning parameters.
+[ ] Check README image paths.
+[ ] Remove temporary files manually if appropriate.
+[ ] Run the main Day 5 script from a clean checkout.
+[ ] Commit only intended source files and final results.
+[ ] Prepare source and target clouds for ICP.
+
+IMPORTANT
+----------------------------------------------------------------------
+This report does not certify scientific correctness.
+Visual inspection and manual review are still required.
