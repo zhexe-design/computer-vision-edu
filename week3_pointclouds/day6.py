@@ -8,9 +8,8 @@ Features:
 3. Inspect saved point clouds using Open3D.
 4. Read parameters from Day 5 configuration.
 5. Collect portfolio-ready visualizations.
-6. Generate a final README draft.
-7. Generate a project audit report.
-8. Check readiness for the next topic: ICP Registration.
+6. Generate a project audit report.
+7. Check readiness for the next topic: ICP Registration.
 
 Requirements:
     pip install open3d numpy
@@ -46,9 +45,6 @@ VISUALIZATION_DIR = RESULTS_DIR / "visualizations"
 SUMMARY_DIR = RESULTS_DIR / "summaries"
 
 PORTFOLIO_DIR = RESULTS_DIR / "portfolio"
-
-README_PATH = PROJECT_DIR / "README.md"
-README_DRAFT_PATH = PROJECT_DIR / "README_day6_draft.md"
 
 AUDIT_PATH = RESULTS_DIR / "day6_audit_report.txt"
 
@@ -98,11 +94,6 @@ SUPPORTED_POINT_CLOUD_FORMATS = {
     ".pts",
 }
 
-# Set this to your actual dataset source before publishing.
-DATASET_SOURCE = "Stanford Bunny dataset — verify exact source"
-
-# This script does not delete files automatically.
-# Temporary files are reported for manual review.
 TEMPORARY_EXTENSIONS = {
     ".tmp",
     ".bak",
@@ -166,6 +157,52 @@ def record_result(results, name, passed, message):
 
     print(f"[{status}] {name}: {message}")
 
+def download_dataset_if_missing():
+    """Download Stanford Bunny if no point cloud exists in data/."""
+
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+    existing_files = [
+        path for path in DATA_DIR.iterdir()
+        if path.is_file()
+        and path.suffix.lower() in SUPPORTED_POINT_CLOUD_FORMATS
+    ]
+
+    if existing_files:
+        print("[INFO] Dataset already exists:")
+        for path in existing_files:
+            print(f"  {path.name}")
+        return
+
+    print("[INFO] Downloading Stanford Bunny dataset...")
+
+    try:
+        dataset = o3d.data.BunnyMesh()
+        mesh = o3d.io.read_triangle_mesh(dataset.path)
+
+        if mesh.is_empty():
+            raise RuntimeError("Downloaded mesh is empty.")
+
+        point_cloud = mesh.sample_points_uniformly(
+            number_of_points=30000
+        )
+
+        output_path = DATA_DIR / "bunny.ply"
+
+        success = o3d.io.write_point_cloud(
+            str(output_path),
+            point_cloud
+        )
+
+        if not success:
+            raise RuntimeError("Could not save the point cloud.")
+
+        print(f"[SUCCESS] Dataset saved to: {output_path}")
+        print(f"[INFO] Number of points: {len(point_cloud.points):,}")
+
+    except Exception as error:
+        print(f"[ERROR] Dataset download failed: {error}")
+        raise
 
 # ============================================================
 # PROJECT STRUCTURE CHECK
@@ -523,229 +560,7 @@ def find_temporary_files():
     return temporary_files
 
 
-# ============================================================
-# README GENERATION
-# ============================================================
-
-def generate_readme(parameters, dataset_files):
-    """
-    Generate a portfolio-oriented README.
-
-    If README.md already exists, create README_day6_draft.md
-    rather than overwriting the existing document.
-    """
-
-    print_header("STEP 8 — README GENERATION")
-
-    if README_PATH.exists():
-        output_path = README_DRAFT_PATH
-        print(
-            "An existing README.md was found. "
-            "The new draft will not overwrite it."
-        )
-    else:
-        output_path = README_PATH
-
-    dataset_name = (
-        ", ".join(path.name for path in dataset_files)
-        if dataset_files
-        else "Add the dataset name here"
-    )
-
-    voxel = parameters["VOXEL_SIZE"]
-    neighbors = parameters["STATISTICAL_NB_NEIGHBORS"]
-    std_ratio = parameters["STATISTICAL_STD_RATIO"]
-
-    radius_enabled = (
-        parameters["USE_RADIUS_FILTER"].lower() == "true"
-    )
-
-    radius_description = (
-        f"nb_points={parameters['RADIUS_NB_POINTS']}, "
-        f"radius={parameters['RADIUS_SIZE']}"
-        if radius_enabled
-        else "Disabled"
-    )
-
-    readme = f"""# Week 3 — Point Cloud Processing with Open3D
-
-## Overview
-
-A reusable point cloud preprocessing pipeline built with Python,
-Open3D and NumPy.
-
-This project explores point cloud loading, voxel downsampling,
-outlier removal, normal estimation and region-of-interest (ROI)
-cropping.
-
-The goal is to prepare 3D data for subsequent workflows such as
-ICP registration and surface reconstruction.
-
-## Pipeline
-
-1. Load and validate the input point cloud.
-2. Reduce point density using voxel downsampling.
-3. Remove statistical outliers.
-4. Optionally remove radius-based outliers.
-5. Estimate local surface normals.
-6. Crop a region of interest using an axis-aligned bounding box.
-7. Save intermediate and final point clouds.
-8. Generate visualizations and a processing report.
-
-## Project Structure
-
-```text
-week3_pointclouds/
-├── data/
-├── results/
-│   ├── intermediate/
-│   ├── cleaned/
-│   ├── with_normals/
-│   ├── cropped/
-│   ├── visualizations/
-│   ├── portfolio/
-│   └── summaries/
-├── day1_pointcloud_basics.py
-├── day2_filtering.py
-├── day3_normals_and_roi.py
-├── day4_advanced_cleaning.py
-├── day5_full_pipeline.py
-└── README.md
-```
-
-`day5_full_pipeline.py` is the main reusable preprocessing script.
-
-## Parameters
-
-The following values are read from the Day 5 configuration.
-
-| Operation | Parameter | Value |
-|---|---|---|
-| Voxel downsampling | voxel_size | {voxel} |
-| Statistical filtering | nb_neighbors | {neighbors} |
-| Statistical filtering | std_ratio | {std_ratio} |
-| Radius filtering | Configuration | {radius_description} |
-| Normal estimation | radius | {parameters['NORMAL_RADIUS']} |
-| Normal estimation | max_nn | {parameters['NORMAL_MAX_NN']} |
-| ROI cropping | Minimum ratio | {parameters['ROI_MIN_RATIO']} |
-| ROI cropping | Maximum ratio | {parameters['ROI_MAX_RATIO']} |
-
-These parameters are starting values for the selected dataset,
-not universal optimal settings. Their effect should be evaluated
-using point counts and visual inspection.
-
-## Results
-
-The pipeline saves the following outputs:
-
-- `results/cleaned/cleaned_pointcloud.ply`
-- `results/with_normals/pointcloud_with_normals.ply`
-- `results/cropped/cropped_roi.ply`
-- `results/summaries/day5_pipeline_summary.txt`
-
-### Original Point Cloud
-
-![Original point cloud](results/visualizations/01_original.png)
-
-### Cleaned Point Cloud
-
-![Cleaned point cloud](results/visualizations/02_cleaned.png)
-
-### Point Cloud with Normals
-
-![Point cloud with normals](results/visualizations/03_with_normals.png)
-
-### Cropped Region of Interest
-
-![Cropped ROI](results/visualizations/04_cropped_roi.png)
-
-Commit the corresponding PNG files to GitHub for these images
-to appear in the README.
-
-## Data
-
-- Input file(s): {dataset_name}
-- Dataset source: {DATASET_SOURCE}
-- Dataset provenance: verify the exact source and licensing
-  before publishing.
-
-## How to Run
-
-Install the dependencies:
-
-```bash
-python -m pip install open3d numpy
-```
-
-From the repository root, run:
-
-```bash
-python week3_pointclouds/day5_full_pipeline.py
-```
-
-Place a supported point cloud in the `data/` directory first.
-
-To specify a particular input file:
-
-```bash
-python week3_pointclouds/day5_full_pipeline.py week3_pointclouds/data/bunny.ply
-```
-
-Replace `bunny.ply` with the actual filename.
-
-## Key Concepts Learned
-
-- Voxel downsampling reduces point density and computational cost.
-- Statistical outlier removal identifies points with unusually
-  large average distances to their neighbors.
-- Radius outlier removal eliminates points with insufficient
-  local neighborhood density.
-- Normal estimation describes local surface orientation.
-- ROI cropping selects a spatial region of a point cloud.
-- A reproducible preprocessing pipeline makes downstream
-  registration and reconstruction workflows easier to manage.
-
-## Preparing for ICP Registration
-
-The cleaned point cloud and its estimated normals provide useful
-inputs for subsequent registration experiments.
-
-ICP (Iterative Closest Point) estimates a transformation that
-aligns corresponding geometric data between two point clouds.
-
-Before running ICP, inspect both input clouds, ensure they use
-compatible coordinate units, and evaluate whether an initial
-alignment is needed.
-
-Normal estimation alone does not align two point clouds.
-Likewise, this preprocessing pipeline does not perform registration.
-
-## Limitations
-
-- ROI cropping uses an axis-aligned bounding box rather than
-  semantic object detection.
-- Filtering parameters depend on point density, noise and scale.
-- Estimated normal directions may require additional orientation
-  checks.
-- Results must be visually inspected before downstream use.
-
-## Future Work
-
-- Prepare source and target point clouds for ICP.
-- Compare point-to-point and point-to-plane registration.
-- Evaluate registration accuracy and alignment quality.
-- Explore mesh reconstruction from cleaned point clouds.
-"""
-
-    output_path.write_text(readme, encoding="utf-8")
-
-    print(f"[SAVED] {output_path}")
-    print(
-        "Review dataset attribution, parameter values, images and "
-        "project structure before publishing."
-    )
-
-    return output_path
+# README generation intentionally omitted.
 
 
 # ============================================================
@@ -834,9 +649,8 @@ def write_audit_report(
     visualization_results,
     icp_results,
     temporary_files,
-    readme_path,
 ):
-    """Write a complete project audit report."""
+    """Write a project audit report without generating a README."""
 
     all_results = (
         structure_results
@@ -870,9 +684,6 @@ def write_audit_report(
 
     lines.extend([
         "",
-        "README",
-        "-" * 70,
-        f"Generated document: {readme_path}",
         "",
         "TEMPORARY FILES FOR MANUAL REVIEW",
         "-" * 70,
@@ -891,7 +702,6 @@ def write_audit_report(
         "[ ] Confirm dataset source and licensing.",
         "[ ] Inspect all visualizations.",
         "[ ] Verify final cleaning parameters.",
-        "[ ] Check README image paths.",
         "[ ] Remove temporary files manually if appropriate.",
         "[ ] Run the main Day 5 script from a clean checkout.",
         "[ ] Commit only intended source files and final results.",
@@ -936,6 +746,8 @@ def main():
 
     create_directories()
 
+    download_dataset_if_missing()
+
     structure_results = check_project_structure()
 
     dataset_files = inspect_dataset()
@@ -950,11 +762,6 @@ def main():
 
     temporary_files = find_temporary_files()
 
-    readme_path = generate_readme(
-        parameters=parameters,
-        dataset_files=dataset_files,
-    )
-
     icp_results = check_icp_readiness()
 
     write_audit_report(
@@ -963,14 +770,12 @@ def main():
         visualization_results=visualization_results,
         icp_results=icp_results,
         temporary_files=temporary_files,
-        readme_path=readme_path,
     )
 
     print_header("WEEK 3 — DAY 6 COMPLETED")
 
-    print("Review the audit report and README before publishing.")
+    print("Review the audit report before publishing.")
     print("No project files were automatically deleted.")
-    print("No existing README was automatically overwritten.")
 
 
 if __name__ == "__main__":

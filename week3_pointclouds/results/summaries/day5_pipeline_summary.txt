@@ -1,0 +1,40 @@
+WEEK 3 — DAY 5
+FULL POINT CLOUD CLEANING PIPELINE
+=======================================================
+Run timestamp: 2026-10-31 13:05:57
+Input file: Y:\Python CV\computer-vision-edu\week3_pointclouds\data\bunny.ply
+
+PARAMETERS
+-------------------------------------------------------
+Voxel size: 0.01
+Statistical nb_neighbors: 20
+Statistical std_ratio: 2.0
+Radius filtering enabled: True
+Radius nb_points: 8
+Radius: 0.025
+Normal radius: 0.075
+Normal max_nn: 30
+ROI min ratio: 0.1
+ROI max ratio: 0.9
+
+POINT COUNTS
+-------------------------------------------------------
+Original                           30,000
+Voxel downsampling                    787
+Statistical filtering                 767
+Final cleaned cloud                   767
+Cloud with normals                    767
+Cropped ROI                           429
+
+REMOVAL PERCENTAGES
+-------------------------------------------------------
+Voxel downsampling: 97.38%
+Statistical filtering: 2.54%
+Final cleaning after downsampling: 2.54%
+
+NOTES
+-------------------------------------------------------
+- Normal estimation does not change the point count.
+- ROI cropping uses an axis-aligned bounding box.
+- ROI cropping is based on coordinate ratios, not object semantics.
+- Inspect visualizations before using the cloud for ICP or meshing.
