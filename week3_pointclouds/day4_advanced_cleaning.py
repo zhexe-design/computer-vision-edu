@@ -52,12 +52,11 @@ for directory in (
     CLEANED_V1_DIR,
     CLEANED_V2_DIR,
     COMPARISON_DIR,
+    CLEANED_V3_DIR,
 ):
     directory.mkdir(parents=True, exist_ok=True)
 
 
-# Set to a filename such as "bunny.ply" to select a specific file.
-# Leave as None to search automatically.
 INPUT_FILE = None
 
 # Set True to add artificial outliers for a more challenging test.
