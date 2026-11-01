@@ -407,13 +407,22 @@ python day2_calibration_quality.py
 
 The Week 3 scripts are grouped in `week3_pointclouds/`.
 
-From the repository root:
+**Main entry point (full reusable pipeline):**
 
 ```bash
 cd week3_pointclouds
+python day5_full_pipeline.py
+```
+
+To reproduce individual experiments:
+
+```bash
 python day1_pointcloud_basics.py
 python day2_filtering.py
 python day3_normals_and_roi.py
+python day4_advanced_cleaning.py
+python day5_full_pipeline.py
+python day6.py
 ```
 
 The scripts may download the Stanford Bunny model through Open3D if no suitable local dataset is available and the corresponding fallback is implemented.
