@@ -71,7 +71,7 @@ ROI_MIN_RATIO = 0.10
 ROI_MAX_RATIO = 0.90
 
 # Visualization.
-SHOW_WINDOWS = True
+SHOW_WINDOWS = False
 SAVE_VISUALIZATIONS = True
 
 # Limit the number of normals drawn in the visualization.

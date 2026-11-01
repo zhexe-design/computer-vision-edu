@@ -60,20 +60,33 @@ Place a `.ply` / `.pcd` file in `data/`, or rely on script fallbacks (Open3D sam
 
 ## Week overview
 
-| Focus                    | Script                    | Outcome                               |
-| ------------------------ | ------------------------- | ------------------------------------- |
-| Basics                   | `day1_pointcloud_basics.py` | Load and visualize a point cloud    |
+| Focus                    | Script                      | Outcome                               |
+| ------------------------ | --------------------------- | ------------------------------------- |
+| Basics                   | `day1_pointcloud_basics.py` | Load and visualize a point cloud      |
 | Parameter study          | `day2_filtering.py`         | Compare statistical vs radius filters |
 | Pipeline + normals + ROI | `day3_normals_and_roi.py`   | Full clean → normals → crop           |
 | Pipeline variants        | `day4_advanced_cleaning.py` | Three aggressiveness levels           |
-| **Final pipeline**       | **`day5_full_pipeline.py`** | One-command reusable workflow       |
+| **Final pipeline**       | **`day5_full_pipeline.py`** | One-command reusable workflow         |
 | Packaging                | `day6.py`                   | Structure / output audit              |
 
 **Storyline:** Day 2 chooses parameters → Days 3–5 apply them in a full pipeline → Day 6 checks that outputs exist and are readable.
 
 ---
 
-## Day 2 — Filtering parameter study (key experiment)
+## Day 1 — Point Cloud Basics
+
+Script: `day1_pointcloud_basics.py`
+
+- Load a point cloud with `o3d.io.read_point_cloud` (Stanford Bunny or a local `.ply` / `.pcd` from `data/`)
+- Visualize it with `o3d.visualization.draw_geometries`
+- Apply voxel downsampling and a first statistical outlier removal
+- Save the result to `results/`
+
+**Concepts covered:** a point cloud is a set of XYZ points (optionally with color and normals) with no connectivity, unlike a mesh. Downsampling reduces size and evens out density; outlier removal removes isolated noise.
+
+---
+
+## Day 2 — Point Cloud Filtering and Parameter Study
 
 **Setup:** Stanford Bunny with **3% synthetic outliers**, then voxel downsampling.
 
@@ -81,6 +94,8 @@ Place a `.ply` / `.pcd` file in `data/`, or rely on script fallbacks (Open3D sam
 | ---------------------------- | -----: |
 | Input (with synthetic noise) | 30,000 |
 | After voxel size `0.01`      | **1,569** |
+
+![Voxel downsampling comparison](results/voxel_comparison.png)
 
 ### Statistical Outlier Removal (on the downsampled cloud)
 
@@ -92,6 +107,8 @@ Place a `.ply` / `.pcd` file in `data/`, or rely on script fallbacks (Open3D sam
 | Neighbors 10 | 10 | 2.0 | 1,569 | 1,517 | 3.31% |
 | Neighbors 40 | 40 | 2.0 | 1,569 | 1,507 | 3.95% |
 
+![Statistical outlier removal — balanced](results/statistical/statistical_balanced_comparison.png)
+
 ### Radius Outlier Removal
 
 | Experiment   | nb_points | radius | Before | After | Removed |
@@ -102,7 +119,9 @@ Place a `.ply` / `.pcd` file in `data/`, or rely on script fallbacks (Open3D sam
 | Small radius | 16 | 0.025 | 1,569 | 871   | 44.49% |
 | Large radius | 16 | 0.10  | 1,569 | 1,569 | 0.00% |
 
-Full log: `results/experiment_summary.txt`.
+![Radius outlier removal — balanced](results/radius/radius_balanced_comparison.png)
+
+Full log: [experiment_summary.txt](results/experiment_summary.txt).
 
 ### Selected configuration
 
@@ -116,7 +135,7 @@ Full log: `results/experiment_summary.txt`.
 
 ---
 
-## Day 3 — Normals, ROI, and cleaning pipeline
+## Day 3 — Normals, ROI, and Cleaning Pipeline
 
 End-to-end pipeline on the **Stanford Bunny (30,000 points)** with parameters scaled relative to the bounding-box diagonal where applicable.
 
@@ -130,7 +149,7 @@ End-to-end pipeline on the **Stanford Bunny (30,000 points)** with parameters sc
 
 Total reduction **≈ 60.4%** includes downsampling and ROI crop — **not** “60% noise removed”.
 
-Parameters (from `results/day3_summary.txt`):
+Parameters (from [day3_summary.txt](results/day3_summary.txt)):
 
 | Step        | Parameter                | Value |
 | ----------- | ------------------------ | ----: |
@@ -152,7 +171,7 @@ Normals support later **point-to-plane ICP** and reconstruction. ROI here is an 
 
 ---
 
-## Day 4 — Comparing full cleaning combinations
+## Day 4 — Comparing Full Cleaning Combinations
 
 Three pipelines on a **noisy input** (~119,345 points), same stage order: voxel → statistical → radius.
 
@@ -162,13 +181,17 @@ Three pipelines on a **noisy input** (~119,345 points), same stage order: voxel 
 | cleaned_v2 | 0.02 | 20 / 2.0 | 16 / 0.05 | 14,990 | 12.6% |
 | cleaned_v3 | 0.03 | 30 / 1.0 | 20 / 0.07 | 5,214 | 4.4% |
 
-Source: `results/comparison/cleaning_report.csv`.
+Source: [cleaning_report.csv](results/comparison/cleaning_report.csv).
+
+![All pipelines compared](results/comparison/all_pipelines_comparison.png)
+
+![Cleaning stages](results/comparison/cleaning_stages.png)
 
 v1 is mild; v3 is very aggressive. Final choice should follow **visual** inspection, not retention alone.
 
 ---
 
-## Day 5 — Final reusable pipeline
+## Day 5 — Final Reusable Pipeline
 
 Script: **`day5_full_pipeline.py`**
 
@@ -202,7 +225,7 @@ Typical outputs:
 
 ## Day 6 — Audit
 
-`day6.py` checks scripts, folders, final PLY readability, normals, and visualizations. Latest report: **20 checks passed, 0 failed** (`results/day6_audit_report.txt`).
+`day6.py` checks scripts, folders, final PLY readability, normals, and visualizations. Latest report: **20 checks passed, 0 failed** ([day6_audit_report.txt](results/day6_audit_report.txt)).
 
 This confirms **packaging completeness**, not registration quality. ICP is **not** implemented in Week 3.
 

@@ -44,6 +44,7 @@ RESULTS_DIR = BASE_DIR / "results"
 
 CLEANED_V1_DIR = RESULTS_DIR / "cleaned_v1"
 CLEANED_V2_DIR = RESULTS_DIR / "cleaned_v2"
+CLEANED_V3_DIR = RESULTS_DIR / "cleaned_v3"
 COMPARISON_DIR = RESULTS_DIR / "comparison"
 
 for directory in (
@@ -476,7 +477,7 @@ EXPERIMENTS = [
         "std_ratio": 1.0,
         "nb_points": 20,
         "radius": 0.07,
-        "output_directory": CLEANED_V2_DIR,
+        "output_directory": CLEANED_V3_DIR,
     },
 ]
 
