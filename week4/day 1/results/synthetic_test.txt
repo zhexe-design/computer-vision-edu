@@ -1,0 +1,7 @@
+SYNTHETIC TRANSFORMATION TEST
+========================================
+Points: 500
+True angle: 15.0
+Rotation error: 1.7075472925031877e-06
+Translation error: 3.3306690738754696e-16
+Test passed: True
