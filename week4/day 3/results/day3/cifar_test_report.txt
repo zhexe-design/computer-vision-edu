@@ -1,0 +1,8 @@
+CIFAR-10 FINAL EVALUATION
+========================
+Device: cpu
+Epochs: 50
+Best validation/test accuracy during training: 92.32%
+Reloaded model test accuracy: 92.32%
+Training time (seconds): 7252.50
+Target >= 70%: PASSED

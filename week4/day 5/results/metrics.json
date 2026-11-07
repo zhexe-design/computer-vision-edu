@@ -1,0 +1,59 @@
+{
+  "source": "Y:\\Python CV\\computer-vision-edu\\week4\\day 4\\data\\scan1.ply",
+  "target": "Y:\\Python CV\\computer-vision-edu\\week4\\day 4\\data\\scan2.ply",
+  "method": "p2l",
+  "global_registration": "FPFH + RANSAC",
+  "parameters": {
+    "voxel_size": 0.043334723539399864,
+    "icp_distance_threshold": 0.08666944707879973,
+    "ransac_distance_threshold": 0.06500208530909979,
+    "source_points": 6063,
+    "target_points": 4463,
+    "max_iterations": 80
+  },
+  "metrics": {
+    "before": {
+      "fitness": 0.1822530100610259,
+      "inlier_rmse": 0.05355774914314882
+    },
+    "after": {
+      "fitness": 0.6658419924129969,
+      "inlier_rmse": 0.022309444222598077
+    },
+    "after_global_registration": {
+      "fitness": 0.6676562757710705,
+      "inlier_rmse": 0.02638639462914041
+    }
+  },
+  "runtime_seconds": {
+    "global_registration": 0.08432190000166884,
+    "refinement": 0.003682700000354089
+  },
+  "transformation": [
+    [
+      0.8400352050101929,
+      0.0076460752253209455,
+      -0.5424780105010087,
+      0.6474880254734634
+    ],
+    [
+      -0.1476378915113256,
+      0.9653872998659879,
+      -0.2150125909046917,
+      0.8082257173176022
+    ],
+    [
+      0.5220573793497929,
+      0.2607084555420228,
+      0.8120881687817645,
+      -1.483734767454629
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "custom_icp_rmse_history": []
+}

@@ -19,3 +19,6 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.log
+
+# CIFAR-10 dataset
+week4/day 3/data/cifar10/
