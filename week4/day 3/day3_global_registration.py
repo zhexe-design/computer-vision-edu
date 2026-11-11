@@ -203,7 +203,7 @@ def load_point_clouds() -> tuple[o3d.geometry.PointCloud, o3d.geometry.PointClou
     if source.is_empty() or target.is_empty():
         raise RuntimeError("Could not load valid source and target point clouds.")
 
-    # Remove non-finite points, if present.
+    # Remove non-finite points, if present. 
     source = source.select_by_index(
         np.flatnonzero(np.isfinite(np.asarray(source.points)).all(axis=1)).tolist()
     )

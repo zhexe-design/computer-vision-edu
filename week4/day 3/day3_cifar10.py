@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Subset
 from torchvision import datasets, transforms
 
 
@@ -107,7 +107,6 @@ class CIFAR10CNN(nn.Module):
 
 
 def make_loaders():
-    # CIFAR-10 channel statistics.
     mean = (0.4914, 0.4822, 0.4465)
     std = (0.2470, 0.2435, 0.2616)
 
@@ -118,25 +117,46 @@ def make_loaders():
         transforms.Normalize(mean, std),
     ])
 
-    test_transform = transforms.Compose([
+    eval_transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize(mean, std),
     ])
 
-    train_set = datasets.CIFAR10(
+    # Two copies of the training dataset:
+    # augmented for training, unaugmented for validation.
+    train_augmented = datasets.CIFAR10(
         root=str(DATA_DIR),
         train=True,
         download=True,
         transform=train_transform,
     )
+
+    train_evaluation = datasets.CIFAR10(
+        root=str(DATA_DIR),
+        train=True,
+        download=True,
+        transform=eval_transform,
+    )
+
     test_set = datasets.CIFAR10(
         root=str(DATA_DIR),
         train=False,
         download=True,
-        transform=test_transform,
+        transform=eval_transform,
     )
 
+    # Reproducible 45,000 / 5,000 split.
+    generator = torch.Generator().manual_seed(SEED)
+    indices = torch.randperm(50000, generator=generator).tolist()
+
+    train_indices = indices[:45000]
+    val_indices = indices[45000:]
+
+    train_set = Subset(train_augmented, train_indices)
+    val_set = Subset(train_evaluation, val_indices)
+
     pin_memory = DEVICE.type == "cuda"
+
     train_loader = DataLoader(
         train_set,
         batch_size=BATCH_SIZE,
@@ -144,6 +164,15 @@ def make_loaders():
         num_workers=NUM_WORKERS,
         pin_memory=pin_memory,
     )
+
+    val_loader = DataLoader(
+        val_set,
+        batch_size=BATCH_SIZE * 2,
+        shuffle=False,
+        num_workers=NUM_WORKERS,
+        pin_memory=pin_memory,
+    )
+
     test_loader = DataLoader(
         test_set,
         batch_size=BATCH_SIZE * 2,
@@ -151,7 +180,8 @@ def make_loaders():
         num_workers=NUM_WORKERS,
         pin_memory=pin_memory,
     )
-    return train_loader, test_loader
+
+    return train_loader, val_loader, test_loader
 
 
 def run_epoch(model, loader, criterion, optimizer=None):
@@ -213,29 +243,45 @@ def evaluate_and_confusion_matrix(model, test_loader):
 def save_training_curves(history):
     epochs = np.arange(1, len(history["train_loss"]) + 1)
 
-    plt.figure(figsize=(10, 5))
-    plt.plot(epochs, history["train_loss"], label="Train loss")
-    plt.plot(epochs, history["test_loss"], label="Test loss")
-    plt.xlabel("Epoch")
-    plt.ylabel("Cross-entropy loss")
-    plt.title("CIFAR-10 CNN - Loss")
-    plt.grid(True, alpha=0.3)
-    plt.legend()
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+    # Loss
+    axes[0].plot(
+        epochs, history["train_loss"],
+        label="Training loss"
+    )
+    axes[0].plot(
+        epochs, history["val_loss"],
+        label="Validation loss"
+    )
+    axes[0].set_xlabel("Epoch")
+    axes[0].set_ylabel("Cross-entropy loss")
+    axes[0].set_title("Training and Validation Loss")
+    axes[0].grid(True, alpha=0.3)
+    axes[0].legend()
+
+    # Accuracy
+    axes[1].plot(
+        epochs, history["train_accuracy"],
+        label="Training accuracy"
+    )
+    axes[1].plot(
+        epochs, history["val_accuracy"],
+        label="Validation accuracy"
+    )
+    axes[1].set_xlabel("Epoch")
+    axes[1].set_ylabel("Accuracy")
+    axes[1].set_title("Training and Validation Accuracy")
+    axes[1].grid(True, alpha=0.3)
+    axes[1].legend()
+
     plt.tight_layout()
-    plt.savefig(RESULTS_DIR / "cifar_training_loss.png", dpi=250)
+
+    path = RESULTS_DIR / "training_curves.png"
+    plt.savefig(path, dpi=250)
     plt.close()
 
-    plt.figure(figsize=(10, 5))
-    plt.plot(epochs, history["train_accuracy"], label="Train accuracy")
-    plt.plot(epochs, history["test_accuracy"], label="Test accuracy")
-    plt.xlabel("Epoch")
-    plt.ylabel("Accuracy")
-    plt.title("CIFAR-10 CNN - Accuracy")
-    plt.grid(True, alpha=0.3)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(RESULTS_DIR / "cifar_training_accuracy.png", dpi=250)
-    plt.close()
+    print(f"[SAVE] {path}")
 
 
 def save_confusion_matrix(matrix):
@@ -274,7 +320,7 @@ def main():
         print(f"GPU: {torch.cuda.get_device_name(0)}")
     print(f"Epochs: {EPOCHS}")
 
-    train_loader, test_loader = make_loaders()
+    train_loader, val_loader, test_loader = make_loaders()
     model = CIFAR10CNN().to(DEVICE)
 
     criterion = nn.CrossEntropyLoss()
@@ -291,9 +337,9 @@ def main():
 
     history = {
         "train_loss": [],
-        "test_loss": [],
+        "val_loss": [],
         "train_accuracy": [],
-        "test_accuracy": [],
+        "val_accuracy": [],
         "learning_rate": [],
     }
 
@@ -302,22 +348,28 @@ def main():
     start_time = time.perf_counter()
 
     for epoch in range(1, EPOCHS + 1):
+
         train_loss, train_acc = run_epoch(
             model, train_loader, criterion, optimizer
         )
-        test_loss, test_acc = run_epoch(
-            model, test_loader, criterion
+
+        val_loss, val_acc = run_epoch(
+            model, val_loader, criterion
         )
+
         scheduler.step()
 
         history["train_loss"].append(train_loss)
-        history["test_loss"].append(test_loss)
+        history["val_loss"].append(val_loss)
         history["train_accuracy"].append(train_acc)
-        history["test_accuracy"].append(test_acc)
-        history["learning_rate"].append(optimizer.param_groups[0]["lr"])
+        history["val_accuracy"].append(val_acc)
+        history["learning_rate"].append(
+            optimizer.param_groups[0]["lr"]
+        )
 
-        if test_acc > best_accuracy:
-            best_accuracy = test_acc
+        # Select the best model using validation accuracy.
+        if val_acc > best_accuracy:
+            best_accuracy = val_acc
             best_state = {
                 key: value.detach().cpu().clone()
                 for key, value in model.state_dict().items()
@@ -325,20 +377,22 @@ def main():
 
         print(
             f"Epoch {epoch:02d}/{EPOCHS} | "
-            f"train loss {train_loss:.4f} acc {train_acc*100:.2f}% | "
-            f"test loss {test_loss:.4f} acc {test_acc*100:.2f}%"
+            f"train loss {train_loss:.4f} "
+            f"acc {train_acc*100:.2f}% | "
+            f"val loss {val_loss:.4f} "
+            f"acc {val_acc*100:.2f}%"
         )
 
-        # Save resumable checkpoint after every epoch.
         checkpoint = {
             "epoch": epoch,
             "model_state_dict": model.state_dict(),
             "optimizer_state_dict": optimizer.state_dict(),
             "scheduler_state_dict": scheduler.state_dict(),
-            "best_test_accuracy": best_accuracy,
+            "best_validation_accuracy": best_accuracy,
             "history": history,
             "classes": CLASSES,
         }
+
         torch.save(
             checkpoint,
             RESULTS_DIR / "cifar_cnn_checkpoint.pth"
