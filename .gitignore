@@ -1,24 +1,78 @@
+# ==============================
 # Python
+# ==============================
 __pycache__/
 *.py[cod]
 *.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
 
+# ==============================
 # Virtual environments
+# ==============================
 .venv/
 venv/
 env/
 
+# ==============================
 # IDE
+# ==============================
 .vscode/
 .idea/
 
+# ==============================
 # OS
+# ==============================
 .DS_Store
 Thumbs.db
+desktop.ini
 
+# ==============================
 # Temporary files
+# ==============================
 *.tmp
 *.log
+*.bak
 
-# CIFAR-10 dataset
-week4/day 3/data/cifar10/
+# ==============================
+# CIFAR-10 datasets
+# ==============================
+week4/day3/data/cifar10/
+**/cifar-10-batches-py/
+**/cifar-10-python.tar.gz
+**/data_batch_*
+**/test_batch
+**/batches.meta
+
+# ==============================
+# Trained models and checkpoints
+# ==============================
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+datasets/checkpoints/
+**/checkpoints/
+
+# ==============================
+# Large point cloud datasets
+# ==============================
+**/redwood/
+**/Redwood/
+**/fragment_*.ply
+**/cloud_bin_*.ply
+**/cloud_bin_*.pcd
+
+# Dataset directories
+week4/day4/data/
+**/dataset/
+**/datasets/
+
+# ==============================
+# Local experiment outputs
+# ==============================
+# Keep lightweight results such as PNG, GIF, CSV and JSON.
+# Do not ignore entire results/ directories.
+
