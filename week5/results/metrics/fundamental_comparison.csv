@@ -1,0 +1,4 @@
+Pair,Total matches,8-point inliers,8-point error (px),RANSAC inliers,RANSAC ratio (%),RANSAC error (px),Homography inliers
+A,48,48,185.2513,19,39.58,0.3374,13
+B,21,21,72.3141,11,52.38,0.1037,5
+C,135,135,107.3879,30,22.22,0.3948,17
